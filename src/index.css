@@ -680,3 +680,114 @@ textarea { resize: vertical; min-height: 72px; }
   .store-cart-label { display: none; }
   .store-tag { display: none; }
 }
+
+/* ── Searchable select ─────────────────────────────────────────────────────
+   A select you can type into. The master lists became the shop's own data and
+   run to a few hundred rows, which a native dropdown cannot be scrolled
+   through usefully. See components/SearchableSelect.jsx. */
+
+.ss { position: relative; }
+
+.ss-control {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 11px;
+  font-size: 13.5px;
+  font-family: var(--font);
+  text-align: left;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.ss-control:hover:not(.is-disabled) { border-color: var(--border-strong, var(--border)); }
+.ss-control:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+.ss-control.is-disabled { opacity: 0.55; cursor: not-allowed; }
+.ss-control > span:first-child {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ss-placeholder { color: var(--text-3); }
+.ss-caret { color: var(--text-3); font-size: 10px; }
+
+.ss-menu {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.ss-search {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+.ss-search:focus { outline: none; }
+
+.ss-list { max-height: 260px; overflow-y: auto; padding: 4px; }
+
+.ss-option {
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 7px 9px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 13px;
+  font-family: var(--font);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.ss-option > span:first-child {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ss-option.is-active { background: var(--surface-2); }
+.ss-option.is-selected { font-weight: 650; color: var(--primary); }
+.ss-meta { font-size: 11px; color: var(--text-3); flex-shrink: 0; }
+
+.ss-empty { padding: 14px 10px; font-size: 12.5px; color: var(--text-3); text-align: center; }
+.ss-foot {
+  padding: 6px 10px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+/* The sign-in card no longer lists demo accounts — this is a real shop's
+   login. Only the server address remains, because "which API am I pointed
+   at?" is the first question a failed sign-in raises. */
+.login-api {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-size: 11.5px;
+  color: var(--text-3);
+}
+.login-api .mono { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* PartHub's mark replaces the "S" monogram in the sidebar and on sign-in. */
+.brand-logo { border-radius: 8px; flex-shrink: 0; }
+.login-logo { border-radius: 14px; display: block; margin: 0 auto 14px; }

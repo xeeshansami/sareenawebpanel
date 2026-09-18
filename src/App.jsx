@@ -21,12 +21,16 @@ import Shops from './pages/Shops.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Reports from './pages/Reports.jsx';
 import Products from './pages/Products.jsx';
-import Models from './pages/Models.jsx';
+import Brands from './pages/master/Brands.jsx';
+import BrandModels from './pages/master/BrandModels.jsx';
+import AccessoryTypes from './pages/master/AccessoryTypes.jsx';
+import AccessoryQualities from './pages/master/AccessoryQualities.jsx';
+import Technologies from './pages/master/Technologies.jsx';
+import PartCompanies from './pages/master/PartCompanies.jsx';
 import Inventory from './pages/Inventory.jsx';
 import Sales from './pages/Sales.jsx';
 import Estimates from './pages/Estimates.jsx';
 import Purchases from './pages/Purchases.jsx';
-import Imports from './pages/Imports.jsx';
 import Orders from './pages/Orders.jsx';
 import Customers from './pages/Customers.jsx';
 import Suppliers from './pages/Suppliers.jsx';
@@ -76,13 +80,29 @@ export default function App() {
         <Route path="/reports" element={guard(CAPS.REPORT_VIEW, <Reports />)} />
 
         <Route path="/products" element={guard(CAPS.PRODUCT_VIEW, <Products />)} />
-        <Route path="/models" element={guard(CAPS.PRODUCT_VIEW, <Models />)} />
+
+        {/* The five master-data lists the product form is built from. All
+            guarded by product.view to read; the page itself hides the write
+            actions a Shop User does not hold. */}
+        <Route path="/brands" element={guard(CAPS.PRODUCT_VIEW, <Brands />)} />
+        <Route path="/brand-models" element={guard(CAPS.PRODUCT_VIEW, <BrandModels />)} />
+        <Route path="/accessory-types" element={guard(CAPS.PRODUCT_VIEW, <AccessoryTypes />)} />
+        <Route path="/accessory-qualities" element={guard(CAPS.PRODUCT_VIEW, <AccessoryQualities />)} />
+        <Route path="/technologies" element={guard(CAPS.PRODUCT_VIEW, <Technologies />)} />
+        <Route path="/part-companies" element={guard(CAPS.PRODUCT_VIEW, <PartCompanies />)} />
+
+        {/* /models was the old combined brands-and-models page. Kept as a
+            redirect so an existing bookmark still lands somewhere useful. */}
+        <Route path="/models" element={<Navigate to="/brand-models" replace />} />
+
         <Route path="/inventory" element={guard(CAPS.INVENTORY_VIEW, <Inventory />)} />
 
         <Route path="/sales" element={guard(CAPS.SALE_VIEW, <Sales />)} />
         <Route path="/estimates" element={guard(CAPS.SALE_VIEW, <Estimates />)} />
         <Route path="/purchases" element={guard(CAPS.PURCHASE_VIEW, <Purchases />)} />
-        <Route path="/imports" element={guard(CAPS.OCR_USE, <Imports />)} />
+        {/* Invoice import is a phone job — see the note on SHOP_NAV in
+            Layout.jsx. An old link lands on Products rather than 404ing. */}
+        <Route path="/imports" element={<Navigate to="/products" replace />} />
         <Route path="/orders" element={guard(CAPS.ORDER_VIEW, <Orders />)} />
 
         <Route path="/customers" element={guard(CAPS.CUSTOMER_VIEW, <Customers />)} />

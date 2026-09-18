@@ -9,13 +9,6 @@ import { Link } from 'react-router-dom';
 // before a round trip and reported in plain language.
 const looksLikeEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
 
-// Seeded accounts, matching src/seed.js. Click-to-fill rather than pre-filled:
-// typing into a pre-filled field appends, which is how "admin@sareena.local" once
-// became "admin@sareena.localinfo.xeeshan@gmail.com".
-const DEMO_ACCOUNTS = [
-  { label: 'Shopkeeper', email: 'owner@sareena.local' },
-  { label: 'Shop user', email: 'sales@sareena.local' },
-];
 
 export default function Login() {
   const { login, isAuthenticated, booting, user } = useAuth();
@@ -61,18 +54,14 @@ export default function Login() {
     }
   };
 
-  const fillDemo = (mail) => {
-    setEmail(mail);
-    setPassword('password123');
-    setError('');
-  };
+
 
   return (
     <div className="login-shell">
       <div className="login-card">
         <div className="login-brand">
-          <div className="brand-mark">S</div>
-          <h1>Sareena Admin</h1>
+          <img className="login-logo" src={`${import.meta.env.BASE_URL}parthub-192.png`} alt="" width="56" height="56" />
+          <h1>PartHub</h1>
           <p>Sign in to manage your inventory</p>
         </div>
 
@@ -120,20 +109,9 @@ export default function Login() {
           </button>
         </form>
 
-        <div className="demo-box">
-          <strong>Demo accounts</strong> — click to fill (password <code>password123</code>)
-          {DEMO_ACCOUNTS.map((a) => (
-            <div className="demo-row" key={a.email}>
-              <span>{a.label}</span>
-              <button type="button" className="link-btn" onClick={() => fillDemo(a.email)}>
-                {a.email}
-              </button>
-            </div>
-          ))}
-          <div className="demo-row" style={{ marginTop: 9, color: 'var(--text-3)', fontSize: 11.5 }}>
-            <span>API</span>
-            <span className="mono">{API_BASE_URL}</span>
-          </div>
+        <div className="login-api">
+          <span>Server</span>
+          <span className="mono">{API_BASE_URL}</span>
         </div>
 
         {/* This page is for shop staff. A customer who wandered in needs a way

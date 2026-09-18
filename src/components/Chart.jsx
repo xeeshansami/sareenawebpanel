@@ -72,6 +72,72 @@ export function TrendChart({ data, showProfit = true, height = 240 }) {
   );
 }
 
+/**
+ * Order count per day.
+ *
+ * A count, not money, so it gets its own component rather than a flag on
+ * TrendChart: the axis is whole invoices, the tooltip must not print "Rs", and
+ * a zero day has to be visible rather than smoothed over — which is why the
+ * backend fills the gaps and this draws every one of them.
+ */
+export function OrdersChart({ data, height = 230 }) {
+  return (
+    <ResponsiveContainer width="100%" height={height}>
+      <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+        <CartesianGrid {...gridProps} />
+        <XAxis
+          dataKey="period" tick={axis} stroke="var(--grid)"
+          tickFormatter={(d) => String(d).slice(5)}
+        />
+        <YAxis tick={axis} stroke="var(--grid)" width={34} allowDecimals={false} />
+        <Tooltip
+          contentStyle={tooltipStyle}
+          cursor={{ fill: 'var(--surface-2)' }}
+          formatter={(v, n) => [n === 'Revenue' ? money(v) : number(v), n]}
+        />
+        <Bar dataKey="orders" name="Orders" fill="var(--series-1)" radius={[4, 4, 0, 0]} maxBarSize={28} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+/**
+ * How the catalogue splits across brands or accessory types.
+ *
+ * Counts of products, not revenue. Two series on one axis — how many distinct
+ * products, and how many units of them are on the shelf — because "eight
+ * products, two units" and "eight products, four hundred units" are different
+ * shops and one bar cannot say which this is.
+ */
+export function DistributionChart({ data, height = 260 }) {
+  const series = [
+    { key: 'products', label: 'Products', color: 'var(--series-1)' },
+    { key: 'units', label: 'Units in stock', color: 'var(--series-2)' },
+  ];
+
+  return (
+    <>
+      <Legendary items={series} />
+      <ResponsiveContainer width="100%" height={height}>
+        <BarChart data={data} layout="vertical" margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
+          <CartesianGrid {...gridProps} horizontal={false} vertical />
+          <XAxis type="number" tick={axis} stroke="var(--grid)" allowDecimals={false} />
+          <YAxis
+            type="category" dataKey="label"
+            tick={{ ...axis, fontSize: 10.5, fill: 'var(--text-2)' }}
+            width={130} stroke="var(--grid)"
+          />
+          <Tooltip contentStyle={tooltipStyle} formatter={(v, n) => [number(v), n]}
+                   cursor={{ fill: 'var(--surface-2)' }} />
+          {series.map((s) => (
+            <Bar key={s.key} dataKey={s.key} name={s.label} fill={s.color} radius={[0, 3, 3, 0]} barSize={9} />
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
+    </>
+  );
+}
+
 /** Horizontal ranking. Rounded data-ends, anchored at the baseline. */
 export function RankChart({ data, dataKey = 'units', labelKey = 'label', valueFormat = number, height = 260 }) {
   return (

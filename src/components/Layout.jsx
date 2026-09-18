@@ -5,6 +5,7 @@ import api, { CAPS } from '../api/client.js';
 import { initials } from '../utils/format.js';
 import ShopSwitcher from './ShopSwitcher.jsx';
 import { CostUnlockButton, CostUnlockDialog } from './CostUnlock.jsx';
+import ErrorBoundary from './ErrorBoundary.jsx';
 import { useCostUnlock } from '../context/CostUnlockContext.jsx';
 
 /**
@@ -37,21 +38,36 @@ const PLATFORM_NAV = [
   { to: '/settings', label: 'Settings', icon: '⚙' },
 ];
 
+/**
+ * The shopkeeper's menu, built around the master-data flow.
+ *
+ * The five lists come first and in the order the product form consumes them —
+ * brand, then its models, then what the part is, what grade, and what panel —
+ * because that is also the order someone setting up a shop works through them.
+ *
+ * "Import invoice" is deliberately absent. Reading a supplier invoice is a
+ * phone job: the shopkeeper is standing at the counter with the paper in one
+ * hand, and the mobile app can photograph it as well as read a PDF. Keeping a
+ * second, weaker copy of that flow on the web would mean two review screens to
+ * maintain and one of them always behind.
+ */
 const SHOP_NAV = [
   { to: '/dashboard', label: 'Dashboard', icon: '◫', cap: CAPS.REPORT_VIEW },
 
   { section: 'Catalogue' },
   { to: '/products', label: 'Products', icon: '▣', cap: CAPS.PRODUCT_VIEW },
-  { to: '/models', label: 'Brands & models', icon: '⌸', cap: CAPS.PRODUCT_VIEW },
-  { to: '/inventory', label: 'Inventory', icon: '▦', cap: CAPS.INVENTORY_VIEW, badge: 'lowStock' },
+  { to: '/brands', label: 'Mobile brand names', icon: '⌸', cap: CAPS.PRODUCT_VIEW },
+  { to: '/brand-models', label: 'Mobile brand models', icon: '▤', cap: CAPS.PRODUCT_VIEW },
+  { to: '/accessory-types', label: 'Accessories type', icon: '▦', cap: CAPS.PRODUCT_VIEW },
+  { to: '/accessory-qualities', label: 'Accessories quality type', icon: '◈', cap: CAPS.PRODUCT_VIEW },
+  { to: '/technologies', label: 'Technology', icon: '◉', cap: CAPS.PRODUCT_VIEW },
+  { to: '/part-companies', label: 'Part company', icon: '⬢', cap: CAPS.PRODUCT_VIEW },
 
   { section: 'Trade' },
   { to: '/sales', label: 'Sales', icon: '↗', cap: CAPS.SALE_VIEW },
-  { to: '/purchases', label: 'Purchases', icon: '↘', cap: CAPS.PURCHASE_VIEW },
-  // Reading an invoice is its own permission: a user who may see purchases
-  // cannot necessarily import one.
-  { to: '/imports', label: 'Import invoice', icon: '⎘', cap: CAPS.OCR_USE },
   { to: '/orders', label: 'Orders', icon: '☷', cap: CAPS.ORDER_VIEW, badge: 'orders' },
+  { to: '/purchases', label: 'Purchases', icon: '↘', cap: CAPS.PURCHASE_VIEW },
+  { to: '/inventory', label: 'Inventory', icon: '▩', cap: CAPS.INVENTORY_VIEW, badge: 'lowStock' },
 
   { section: 'Customers' },
   { to: '/customers', label: 'Customers', icon: '☺', cap: CAPS.CUSTOMER_VIEW },
@@ -67,7 +83,14 @@ const TITLES = {
   '/platform': 'Platform overview', '/markets': 'Markets', '/shops': 'Shops',
   '/orders': 'Orders',
   '/dashboard': 'Dashboard', '/reports': 'Reports',
-  '/products': 'Products', '/models': 'Brands & models', '/inventory': 'Inventory',
+  '/products': 'Products',
+  '/brands': 'Mobile brand names',
+  '/brand-models': 'Mobile brand models',
+  '/accessory-types': 'Accessories type',
+  '/accessory-qualities': 'Accessories quality type',
+  '/technologies': 'Technology',
+  '/part-companies': 'Part company',
+  '/inventory': 'Inventory',
   '/sales': 'Sales', '/estimates': 'Estimates', '/purchases': 'Purchases',
   '/customers': 'Customers', '/suppliers': 'Suppliers', '/ledgers': 'Credit / Udhaar',
   '/users': 'Users & access', '/settings': 'Settings',
@@ -146,9 +169,9 @@ export default function Layout() {
 
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-brand">
-          <div className="brand-mark">S</div>
+          <img className="brand-logo" src={`${import.meta.env.BASE_URL}parthub-192.png`} alt="" width="32" height="32" />
           <div style={{ minWidth: 0 }}>
-            <div className="brand-text">Panel Hisab</div>
+            <div className="brand-text">PartHub</div>
             <div className="brand-sub">
               {isSuperAdmin ? 'Platform admin' : shop?.name || 'Shop'}
             </div>
@@ -175,7 +198,7 @@ export default function Layout() {
       <div className="main">
         <header className="topbar">
           <button className="menu-toggle" onClick={() => setSidebarOpen((v) => !v)} aria-label="Toggle menu">☰</button>
-          <div className="topbar-title">{TITLES[location.pathname] || 'Panel Hisab'}</div>
+          <div className="topbar-title">{TITLES[location.pathname] || 'PartHub'}</div>
           <div className="topbar-spacer" />
 
           <ShopSwitcher />
@@ -243,7 +266,14 @@ export default function Layout() {
           </div>
         )}
 
-        <main className="content"><Outlet /></main>
+        <main className="content">
+          {/* A render error inside a page takes the whole tree down to a blank
+              screen otherwise. The boundary sits inside the shell so the
+              sidebar and the session survive it. */}
+          <ErrorBoundary resetKey={location.pathname}>
+            <Outlet />
+          </ErrorBoundary>
+        </main>
       </div>
 
       <CostUnlockDialog />

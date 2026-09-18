@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import publicApi from '../../api/publicApi.js';
 import { useConsumer } from '../../context/ConsumerContext.jsx';
+import ErrorBoundary from '../ErrorBoundary.jsx';
 
 /**
  * The public storefront shell (§8, §9, §32).
@@ -46,7 +47,7 @@ export default function StoreLayout() {
           <Link to="/" className="store-brand">
             <span className="store-mark">PH</span>
             <span>
-              <span className="store-name">Panel Hisab</span>
+              <span className="store-name">PartHub</span>
               <span className="store-tag">Mobile parts marketplace</span>
             </span>
           </Link>
@@ -116,7 +117,7 @@ export default function StoreLayout() {
         </div>
       </header>
 
-      <main className="store-body"><Outlet /></main>
+      <main className="store-body"><ErrorBoundary resetKey={location.pathname}><Outlet /></ErrorBoundary></main>
 
       <footer className="store-foot">
         <div className="store-foot-inner">
