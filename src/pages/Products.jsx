@@ -8,6 +8,7 @@ import Modal from '../components/Modal.jsx';
 import Pagination from '../components/Pagination.jsx';
 import { Loading, Empty, ErrorNote } from '../components/States.jsx';
 import SearchableSelect from '../components/SearchableSelect.jsx';
+import MultiSelectChips from '../components/MultiSelectChips.jsx';
 import { money, number } from '../utils/format.js';
 
 /**
@@ -58,11 +59,12 @@ function normalizeOptions(data) {
 }
 
 const blank = {
-<<<<<<< Updated upstream
   name: '',
   itemNumber: '',
   brand: '',
   model: '',
+  compatibleBrands: [],
+  compatibleModels: [],
   category: '',
   quality: '',
   technology: '',
@@ -71,15 +73,6 @@ const blank = {
   purchasePrice: '',
   salePrice: '',
   description: '',
-=======
-  sku: '', name: '', barcode: '', itemNumber: '', description: '',
-  category: '', brand: '', model: '', compatibleModels: [], compatibleBrands: [],
-  technology: '', assemblyType: '', quality: '', color: '',
-  unit: 'pcs',
-  purchasePrice: '', salePrice: '', wholesalePrice: '',
-  quantity: 0, minimumStock: 0, maximumStock: 0,
-  location: { rack: '', shelf: '', bin: '' },
->>>>>>> Stashed changes
   isActive: true,
   isPublic: false,
 };
@@ -156,28 +149,15 @@ export default function Products() {
     setForm({
       name: p.name || '',
       itemNumber: p.itemNumber || '',
-<<<<<<< Updated upstream
       brand: idOf(p.brand),
       model: idOf(p.model),
+      compatibleBrands: (p.compatibleBrands || []).map(idOf).filter(Boolean),
+      compatibleModels: (p.compatibleModels || []).map(idOf).filter(Boolean),
       category: idOf(p.category),
       quality: idOf(p.quality),
       technology: idOf(p.technology),
       partCompany: idOf(p.partCompany),
       quantity: p.quantity ?? 0,
-=======
-      description: p.description || '',
-      category: p.category?._id || p.category || '',
-      brand: p.brand?._id || p.brand || '',
-      model: p.model?._id || p.model || '',
-      compatibleModels: (p.compatibleModels || []).map((m) => m._id || m),
-      compatibleBrands: (p.compatibleBrands || []).map((b) => b._id || b),
-      technology: p.technology || '',
-      assemblyType: p.assemblyType || '',
-      quality: p.quality || '',
-      color: p.color || '',
-      location: { rack: p.location?.rack || '', shelf: p.location?.shelf || '', bin: p.location?.bin || '' },
-      unit: p.unit || 'pcs',
->>>>>>> Stashed changes
       purchasePrice: p.purchasePrice ?? '',
       salePrice: p.salePrice ?? '',
       description: p.description || '',
@@ -190,7 +170,6 @@ export default function Products() {
 
   const set = (key) => (e) => {
     const v = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-<<<<<<< Updated upstream
     setForm((f) => {
       // Changing the brand drops a model that no longer belongs to it.
       if (key === 'brand' && f.model) {
@@ -198,51 +177,6 @@ export default function Products() {
           (m) => String(m._id) === String(f.model) && String(m.brand) === String(v)
         );
         if (!stillValid) return { ...f, brand: v, model: '' };
-=======
-    setForm((f) => ({ ...f, [k]: v }));
-  };
-
-  /** Asks the backend to decode a typed name; the user confirms each field. */
-  const suggestFromName = async () => {
-    if (!form.name.trim()) return;
-    setParsing(true);
-    try {
-      const { data } = await api.post('/products/parse-name', { name: form.name });
-      const p = data.data;
-      const matchModel = (label) =>
-        models.find((m) => m.name === String(label).toUpperCase()
-          || (m.aliases || []).includes(String(label).toUpperCase()));
-
-      const primary = p.models[0] ? matchModel(p.models[0]) : null;
-      const compatible = p.models.slice(1).map(matchModel).filter(Boolean);
-      const brandMatch = p.brandCandidates.length === 1
-        ? brands.find((b) => b.name.toLowerCase() === p.brandCandidates[0].toLowerCase())
-        : null;
-      const allBrandMatches = p.brandCandidates
-        .map((name) => brands.find((b) => b.name.toLowerCase() === String(name).toLowerCase()))
-        .filter(Boolean);
-      const categoryMatch = p.partType ? categories.find((c) => c.name === p.partType) : null;
-
-      setForm((f) => ({
-        ...f,
-        technology: p.technology || f.technology,
-        color: p.color || f.color,
-        quality: p.quality || f.quality,
-        sku: f.sku || data.data.suggestedSku,
-        brand: brandMatch?._id || f.brand,
-        // Every make the name could mean, not just the one we were confident
-        // enough to file it under. "MI 15C/POCO C85" is genuinely a Xiaomi and
-        // a Poco part, and throwing the others away is what made the same panel
-        // get reordered under the make it was not filed under.
-        compatibleBrands: allBrandMatches.length ? allBrandMatches.map((b) => b._id) : f.compatibleBrands,
-        category: categoryMatch?._id || f.category,
-        model: primary?._id || f.model,
-        compatibleModels: compatible.length ? compatible.map((m) => m._id) : f.compatibleModels,
-      }));
-
-      if (p.brandCandidates.length > 1) {
-        setFormError(`This part reads as ${p.brandCandidates.join(' / ')} — all of them are selected under “Also fits these brands”. Set the primary brand below and remove any that do not apply.`);
->>>>>>> Stashed changes
       }
       return { ...f, [key]: v };
     });
@@ -259,6 +193,8 @@ export default function Products() {
         description: form.description,
         brand: form.brand || null,
         model: form.model || null,
+        compatibleBrands: form.compatibleBrands,
+        compatibleModels: form.compatibleModels,
         category: form.category || null,
         quality: form.quality || null,
         technology: form.technology || null,
@@ -389,7 +325,6 @@ export default function Products() {
                   </tr>
                 </thead>
                 <tbody>
-<<<<<<< Updated upstream
                   {list.items.map((p) => (
                     <tr key={p._id}>
                       <td>
@@ -449,32 +384,6 @@ export default function Products() {
                               {p.isPublic ? 'Unpublish' : 'Publish'}
                             </button>
                           </>
-=======
-                  {list.items.map((p) => {
-                    const low = p.quantity <= p.minimumStock;
-                    return (
-                      <tr key={p._id}>
-                        <td className="mono">{p.sku}</td>
-                        <td>
-                          <div className="strong">{p.name}</div>
-                          <div className="small muted">
-                            {p.technology && <span className="badge badge-gray" style={{ marginRight: 4 }}>{p.technology}</span>}
-                            {p.model?.name || ''}
-                            {p.compatibleModels?.length > 0 && ` +${p.compatibleModels.length} models`}
-                          </div>
-                        </td>
-                        <td className="muted">{p.category?.name || '—'}</td>
-                        <td className="muted">
-                          {p.brand?.name || '—'}
-                          {p.compatibleBrands?.length > 0 && (
-                            <div className="small muted" title={p.compatibleBrands.map((b) => b.name).join(', ')}>
-                              + {p.compatibleBrands.map((b) => b.name).join(', ')}
-                            </div>
-                          )}
-                        </td>
-                        {canUnlock && (
-                          <td className="num muted">{showCost ? money(p.purchasePrice) : '••••'}</td>
->>>>>>> Stashed changes
                         )}
                         {canDelete && p.isActive && (
                           <>
@@ -530,7 +439,6 @@ export default function Products() {
 
           <div className="form-row">
             <div className="field">
-<<<<<<< Updated upstream
               <label>Brand</label>
               <SearchableSelect
                 value={form.brand}
@@ -538,86 +446,6 @@ export default function Products() {
                 options={options.brands}
                 placeholder="Select a brand…"
               />
-=======
-              <label>Model</label>
-              <select value={form.model} onChange={set('model')}>
-                <option value="">— none —</option>
-                {models.map((m) => <option key={m._id} value={m._id}>{m.brandName} {m.name}</option>)}
-              </select>
-            </div>
-            <div className="field">
-              <label>Technology</label>
-              <select value={form.technology} onChange={set('technology')}>
-                <option value="">— none —</option>
-                {options.technologies?.map((t) => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </div>
-            <div className="field">
-              <label>Quality</label>
-              <select value={form.quality} onChange={set('quality')}>
-                <option value="">— none —</option>
-                {options.qualities?.map((q) => <option key={q} value={q}>{q}</option>)}
-              </select>
-            </div>
-          </div>
-
-          <div className="field">
-            <label>Also fits these models</label>
-            <select
-              multiple
-              value={form.compatibleModels}
-              onChange={(e) => setForm((f) => ({
-                ...f, compatibleModels: [...e.target.selectedOptions].map((o) => o.value),
-              }))}
-              style={{ height: 96 }}
-            >
-              {models.map((m) => <option key={m._id} value={m._id}>{m.brandName} {m.name}</option>)}
-            </select>
-            <div className="hint">
-              Hold ⌘ to pick several. Searching any of these models will return this product —
-              this is the invoice's "X6816/X6817" written properly.
-            </div>
-          </div>
-
-          <div className="field">
-            <label>Also fits these brands</label>
-            <select
-              multiple
-              value={form.compatibleBrands}
-              onChange={(e) => setForm((f) => ({
-                ...f, compatibleBrands: [...e.target.selectedOptions].map((o) => o.value),
-              }))}
-              style={{ height: 96 }}
-            >
-              {brands.map((b) => <option key={b._id} value={b._id}>{b.name}</option>)}
-            </select>
-            <div className="hint">
-              One panel often fits several makes — "MI 15C/POCO C85" is a Xiaomi and a Poco part.
-              Pick every make it fits and the part is found under all of them, on the counter and
-              in the customer storefront. The primary brand above does not need repeating here.
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="field">
-              <label>Category</label>
-              <select value={form.category} onChange={set('category')}>
-                <option value="">— none —</option>
-                {categories.map((c) => (
-                  <option key={c._id} value={c._id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="field">
-              <label>Brand <span className="muted">(primary)</span></label>
-              <select value={form.brand} onChange={set('brand')}>
-                <option value="">— none —</option>
-                {brands.map((b) => (
-                  <option key={b._id} value={b._id}>{b.name}</option>
-                ))}
-              </select>
-              <div className="hint">What this part is filed under and what prints on the invoice.</div>
->>>>>>> Stashed changes
             </div>
             <div className="field">
               <label>Brand model</label>
@@ -638,6 +466,40 @@ export default function Products() {
                   <Link to="/brand-models">Add one on the Mobile brand models page →</Link>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* One panel routinely fits several handsets, and often across makes:
+              the invoice line "MI 15C/POCO C85" is a single part that fits a
+              Xiaomi and a Poco. Filed under one make only, a counter search for
+              the other found nothing and the shop reordered a part already on
+              the shelf. The two fields above stay the primary make and model —
+              what the part is filed under and what prints — and these are the
+              rest of what it fits. */}
+          <div className="form-row">
+            <div className="field">
+              <label>Also fits these brands</label>
+              <MultiSelectChips
+                values={form.compatibleBrands}
+                onChange={(v) => setForm((f) => ({ ...f, compatibleBrands: v }))}
+                options={options.brands}
+                placeholder="Type to add a brand…"
+                emptyHint="Fits only the brand selected above."
+              />
+            </div>
+            <div className="field">
+              <label>Also fits these models</label>
+              <MultiSelectChips
+                values={form.compatibleModels}
+                onChange={(v) => setForm((f) => ({ ...f, compatibleModels: v }))}
+                options={options.models}
+                placeholder="Type to add a model…"
+                emptyHint="Fits only the model selected above."
+                // Deliberately every model, not just this brand's: a
+                // cross-brand panel is the reason this field exists, so the
+                // make is shown beside each name instead of filtering by it.
+                getMeta={(m) => m.brandName}
+              />
             </div>
           </div>
 
